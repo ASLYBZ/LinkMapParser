@@ -106,13 +106,19 @@ def read_base_link_map_file(base_link_map_file, base_link_map_result_file):
         if os.path.exists(base_link_map_result_file):
             os.remove(base_link_map_result_file)
         print("Creating Result File : %s" % base_link_map_result_file)
+
+        store_sales_total_size = 0
         with open(base_link_map_result_file, "w", encoding="utf-8") as output_file:
             for item in a_file_sorted_list:
                 print("test1111 %s%.2fKB" % (item[0].ljust(50), item[1] / 1024.0))
-                output_file.write("%s \t\t\t%.2fKB\n" % (item[0].ljust(50), item[1] / 1024.0))
-            print("%s%.2fKB" % ("总体积:".ljust(53), total_size / 1024.0))
+                if item[0].startswith("si_sales") or item[0].startswith("si_store"):
+                    output_file.write("%s \t\t\t%.2fKB\n" % (item[0].ljust(50), item[1] / 1024.0))
+                    store_sales_total_size += (item[1] / 1024.0)
+            # print("%s%.2fKB" % ("总体积:".ljust(53), total_size / 1024.0))
+            print("%s%.2fKB" % ("店铺&频道总体积:".ljust(53),  store_sales_total_size))
             print("\n\n\n\n\n")
-            output_file.write("%s%.2fKB\n" % ("总体积:".ljust(53), total_size / 1024.0))
+            # output_file.write("%s%.2fKB\n" % ("总体积:".ljust(53), total_size / 1024.0))
+            output_file.write("%s%.2fKB\n" % ("店铺&频道总体积:".ljust(53), store_sales_total_size))
 
 
 # 解析结果文件并返回包含文件名和对应体积的列表。
