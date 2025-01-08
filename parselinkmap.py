@@ -9,7 +9,7 @@ import os
 import re
 
 
-def read_base_link_map_file(base_link_map_file, base_link_map_result_file):
+def read_base_link_map_file(base_link_map_file, base_link_map_result_file, user_modules):
     # 从Path中提取关键信息：模块-文件名
     def extract_file_identifier(file_path):
         # file_name_with_index = file_path.rsplit('/', 1)[-1]
@@ -106,13 +106,19 @@ def read_base_link_map_file(base_link_map_file, base_link_map_result_file):
         if os.path.exists(base_link_map_result_file):
             os.remove(base_link_map_result_file)
         print("Creating Result File : %s" % base_link_map_result_file)
+
+        store_sales_total_size = 0
         with open(base_link_map_result_file, "w", encoding="utf-8") as output_file:
             for item in a_file_sorted_list:
                 print("test1111 %s%.2fKB" % (item[0].ljust(50), item[1] / 1024.0))
-                output_file.write("%s \t\t\t%.2fKB\n" % (item[0].ljust(50), item[1] / 1024.0))
+                if any(item[0].startswith(module + "(") for module in user_modules):
+                    output_file.write("%s \t\t\t%.2fKB\n" % (item[0].ljust(50), item[1] / 1024.0))
+                    store_sales_total_size += (item[1] / 1024.0)
             print("%s%.2fKB" % ("总体积:".ljust(53), total_size / 1024.0))
+            print("%s%.2fKB" % ("所筛选模块总体积:".ljust(53),  store_sales_total_size))
             print("\n\n\n\n\n")
             output_file.write("%s%.2fKB\n" % ("总体积:".ljust(53), total_size / 1024.0))
+            output_file.write("%s%.2fKB\n" % ("所筛选模块总体积:".ljust(53), store_sales_total_size))
 
 
 # 解析结果文件并返回包含文件名和对应体积的列表。
@@ -200,13 +206,18 @@ def main():
         print_help()
         return
 
+    # 获取用户输入的模块名
+    user_input = input("请输入您希望筛选的模块名，使用逗号分隔: ")
+    # 省略读取Link Map文件和处理的其他部分...
+    user_modules = [module.strip() for module in user_input.split(',')]
+
     base_map_link_file = sys.argv[1]
     output_file_path = os.path.dirname(base_map_link_file)
     if output_file_path:
         base_output_file = output_file_path + "/BaseLinkMapResult.txt"
     else:
         base_output_file = "BaseLinkMapResult.txt"
-    read_base_link_map_file(base_map_link_file, base_output_file)
+    read_base_link_map_file(base_map_link_file, base_output_file, user_modules)
 
     if need_compare == 1:
         target_map_link_file = sys.argv[2]
@@ -215,7 +226,7 @@ def main():
             target_output_file = output_file_path + "/TargetLinkMapResult.txt"
         else:
             target_output_file = "TargetLinkMapResult.txt"
-        read_base_link_map_file(target_map_link_file, target_output_file)
+        read_base_link_map_file(target_map_link_file, target_output_file, user_modules)
 
         base_bundle_list = parse_result_file(base_output_file)
         target_bundle_list = parse_result_file(target_output_file)
