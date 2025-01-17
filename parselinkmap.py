@@ -121,6 +121,7 @@ def read_base_link_map_file(base_link_map_file, base_link_map_result_file, user_
             output_file.write("%s%.2fKB\n" % ("所筛选模块总体积:".ljust(53), store_sales_total_size))
 
 
+
 # 解析结果文件并返回包含文件名和对应体积的列表。
 def parse_result_file(result_file_name):
     base_bundle_list = []
